@@ -1,0 +1,821 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>公務員 作文トレーナー</title>
+<style>
+:root{
+  --bg:#f5f7fb; --card:#ffffff; --ink:#1c2333; --sub:#586178; --line:#d8deea;
+  --accent:#1f3864; --btn:#1f3864; --btn-ink:#ffffff;
+  --err:#b42318; --errbg:#fde8e6; --warn:#8a5a00; --warnbg:#fff3d1;
+  --info:#2457a6; --infobg:#e6eefb; --ok:#17703f; --okbg:#e3f3ea;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#10141d; --card:#1a2030; --ink:#e8ecf5; --sub:#a3adc4; --line:#2e3750;
+    --accent:#a9c2f2; --btn:#4a6fc0; --btn-ink:#ffffff;
+    --err:#ff9d93; --errbg:#3b1d1a; --warn:#f2c36b; --warnbg:#3a2d12;
+    --info:#9dc0ff; --infobg:#1b2a47; --ok:#7fd6a2; --okbg:#15301f;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#10141d; --card:#1a2030; --ink:#e8ecf5; --sub:#a3adc4; --line:#2e3750;
+  --accent:#a9c2f2; --btn:#4a6fc0; --btn-ink:#ffffff;
+  --err:#ff9d93; --errbg:#3b1d1a; --warn:#f2c36b; --warnbg:#3a2d12;
+  --info:#9dc0ff; --infobg:#1b2a47; --ok:#7fd6a2; --okbg:#15301f;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Hiragino Sans","Hiragino Kaku Gothic ProN","Yu Gothic UI","Yu Gothic","Meiryo",sans-serif;font-size:16px;line-height:1.75}
+.wrap{max-width:980px;margin:0 auto;padding:0 16px 56px}
+header.top{padding:22px 0 6px}
+.brand{font-size:13px;color:var(--sub);letter-spacing:.08em}
+h1{font-size:22px;margin:2px 0 6px;color:var(--accent);line-height:1.4}
+.lead{margin:0;color:var(--sub);font-size:14px}
+nav.tabs{display:flex;gap:4px;overflow-x:auto;border-bottom:2px solid var(--line);margin:14px 0 18px}
+.tab{border:0;background:none;padding:10px 14px;font:inherit;font-size:15px;color:var(--sub);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap}
+.tab[aria-selected="true"]{color:var(--accent);border-color:var(--accent);font-weight:700}
+.tab:focus-visible,.btn:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible,summary:focus-visible{outline:3px solid var(--info);outline-offset:2px}
+.panel{display:none}
+.panel.on{display:block}
+.card{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:16px;margin-bottom:16px}
+.card h2{font-size:17px;margin:0 0 8px;color:var(--accent)}
+.card h3{font-size:15px;margin:14px 0 6px}
+.muted{color:var(--sub);font-size:14px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+label.f{display:block;font-size:13px;color:var(--sub)}
+label.f input,label.f select{display:block;width:100%;margin-top:3px;font:inherit;font-size:15px;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink)}
+textarea{width:100%;font:inherit;line-height:1.9;padding:12px;border:1px solid var(--line);border-radius:10px;background:var(--card);color:var(--ink);resize:vertical}
+#text{min-height:300px}
+details>summary{cursor:pointer;color:var(--accent);font-weight:700;margin-bottom:8px}
+.btns{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.btn{font:inherit;font-size:15px;border:1px solid var(--btn);background:var(--btn);color:var(--btn-ink);padding:8px 14px;border-radius:10px;cursor:pointer}
+.btn.ghost{background:transparent;color:var(--accent);border-color:var(--line)}
+.btn.small{font-size:13px;padding:4px 10px}
+.btn:disabled{opacity:.45;cursor:default}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin:10px 0}
+.stat{background:var(--bg);border-radius:10px;padding:8px 12px}
+.stat span{display:block;font-size:12px;color:var(--sub)}
+.stat b{font-size:20px}
+.bar{height:10px;border-radius:6px;background:var(--line);overflow:hidden}
+.bar i{display:block;height:100%;background:var(--info);transition:width .2s}
+.bar.over i{background:var(--err)} .bar.ok i{background:var(--ok)}
+.find{border:1px solid var(--line);border-left-width:5px;border-radius:8px;padding:10px 12px;margin:10px 0;background:var(--card)}
+.find.error{border-left-color:var(--err)} .find.warn{border-left-color:var(--warn)} .find.info{border-left-color:var(--info)}
+.badge{display:inline-block;font-size:12px;padding:0 8px;border-radius:99px;margin-right:6px;font-weight:700}
+.badge.error{background:var(--errbg);color:var(--err)} .badge.warn{background:var(--warnbg);color:var(--warn)} .badge.info{background:var(--infobg);color:var(--info)}
+.find .t{font-weight:700}
+.find .d{font-size:14px;color:var(--sub);margin:2px 0}
+.find .h{font-size:14px;margin:4px 0 0;padding-left:0;list-style:none}
+.find .h li{padding:2px 0;border-top:1px dashed var(--line)}
+mark{border-radius:3px;padding:0 2px;background:var(--warnbg);color:var(--warn)}
+mark.e{background:var(--errbg);color:var(--err)} mark.w{background:var(--warnbg);color:var(--warn)} mark.i{background:var(--infobg);color:var(--info)}
+.good{background:var(--okbg);color:var(--ok);border-radius:8px;padding:10px 12px}
+.sent{display:grid;grid-template-columns:30px 1fr;gap:6px;padding:8px 0;border-bottom:1px dashed var(--line)}
+.sent .n{color:var(--sub);font-size:13px}
+.lenrow{display:flex;align-items:center;gap:8px;margin-top:2px}
+.lenbar{display:block;width:120px;height:6px;border-radius:4px;background:var(--line);overflow:hidden}
+.lenbar i{display:block;height:100%}
+.lenbar.o i{background:var(--ok)} .lenbar.w i{background:var(--warn)} .lenbar.e i{background:var(--err)}
+.lennum{font-size:12px;color:var(--sub)}
+.score{display:flex;flex-wrap:wrap;align-items:baseline;gap:12px;margin:6px 0 10px}
+.score b{font-size:34px;color:var(--accent)}
+.crits{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.crit{border:1px solid var(--line);border-radius:10px;padding:10px 12px}
+.crit h4{margin:0 0 4px;font-size:15px;display:flex;justify-content:space-between}
+.chk{display:flex;gap:8px;align-items:flex-start;font-size:14px;padding:3px 0;cursor:pointer}
+.chk input{margin-top:5px;width:18px;height:18px;flex:none}
+.chk.auto{cursor:default}
+.mk{flex:none;width:18px;text-align:center;font-weight:700}
+.mk.y{color:var(--ok)} .mk.n{color:var(--err)}
+.chips{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.chip{font:inherit;font-size:14px;padding:6px 12px;border-radius:99px;border:1px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.chip[aria-pressed="true"]{border-color:var(--accent);color:var(--accent);font-weight:700;background:var(--infobg)}
+.part{margin:12px 0}
+.part label{font-weight:700;font-size:15px;display:block}
+.part .hint{font-size:13px;color:var(--sub);margin:0 0 4px}
+.part .cc{font-size:12px;color:var(--sub);text-align:right}
+.part textarea{min-height:84px}
+table.rec{width:100%;border-collapse:collapse;font-size:14px}
+table.rec th,table.rec td{border-bottom:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+table.rec th{color:var(--sub);font-weight:600;white-space:nowrap}
+.scroll{overflow-x:auto}
+.model{white-space:pre-wrap;background:var(--infobg);border-radius:8px;padding:10px 12px;color:var(--ink)}
+footer{margin-top:24px;font-size:12px;color:var(--sub);text-align:center}
+#toast{position:fixed;left:50%;bottom:20px;transform:translateX(-50%);background:var(--ink);color:var(--bg);padding:10px 18px;border-radius:99px;font-size:14px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:9}
+#toast.show{opacity:1}
+.print-only{display:none}
+@media (max-width:560px){ h1{font-size:19px} .card{padding:12px} }
+@media print{
+  body{background:#fff;color:#000}
+  body>*:not(#printArea){display:none!important}
+  #printArea{display:block!important}
+  #printArea h1{color:#000;font-size:18px}
+  #printArea table{border-collapse:collapse;width:100%;font-size:12px}
+  #printArea th,#printArea td{border:1px solid #666;padding:4px 6px;text-align:left}
+  #printArea .ans{white-space:pre-wrap;border:1px solid #666;padding:8px;font-size:13px;line-height:1.9}
+  #printArea .cm{border:1px solid #666;min-height:90px;padding:6px;margin-top:6px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header class="top">
+  <div class="brand">江原予備校</div>
+  <h1>公務員 作文・小論文トレーナー</h1>
+  <p class="lead">書いた文章をその場でチェックして、直し方まで見られます。入力した文章は外へ送られず、この端末の中だけに保存されます。</p>
+</header>
+<nav class="tabs" id="tabs" role="tablist" aria-label="メニュー">
+  <button class="tab" role="tab" data-tab="write" aria-selected="true">① 書いてチェック</button>
+  <button class="tab" role="tab" data-tab="type" aria-selected="false">② 型で組み立てる</button>
+  <button class="tab" role="tab" data-tab="drill" aria-selected="false">③ 短文練習</button>
+  <button class="tab" role="tab" data-tab="rec" aria-selected="false">④ 記録</button>
+  <button class="tab" role="tab" data-tab="help" aria-selected="false">⑤ 使い方</button>
+</nav>
+
+<!-- ① 書いてチェック -->
+<section class="panel on" id="tab-write">
+  <div class="card">
+    <details>
+      <summary>答案の情報(あとで記録に残したいときに書きます)</summary>
+      <div class="grid">
+        <label class="f">氏名・ペンネーム<input id="f_name" type="text" autocomplete="off"></label>
+        <label class="f">受験先<input id="f_target" type="text" placeholder="例:○○町役場" autocomplete="off"></label>
+        <label class="f">区分<select id="f_kubun"><option>高卒程度</option><option>大卒程度</option><option>社会人経験者</option><option>その他</option></select></label>
+        <label class="f">制限字数<input id="f_limit" type="number" min="100" max="3000" step="50" value="800"></label>
+        <label class="f">長い文の目安(字)<input id="f_long" type="number" min="30" max="120" step="5" value="60"></label>
+      </div>
+    </details>
+    <label class="f" style="margin:8px 0">テーマ(問題文)<input id="f_theme" type="text" placeholder="例:町役場の職員として働く上で大切なこと" autocomplete="off"></label>
+    <textarea id="text" aria-label="答案" placeholder="ここに答案を書きます。段落を分けるときは、改行します。"></textarea>
+    <div class="btns">
+      <button class="btn" id="btnFix">自動で直せる所を直す</button>
+      <button class="btn ghost" id="btnUndo" hidden>元に戻す</button>
+      <button class="btn ghost" id="btnIndent">段落の字下げをそろえる</button>
+      <button class="btn ghost" id="btnSample">例文を入れてためす</button>
+      <button class="btn ghost" id="btnClear">答案を消す</button>
+    </div>
+    <div class="stats" id="stats"></div>
+    <div class="bar" id="bar"><i style="width:0"></i></div>
+    <p class="muted" id="barMsg" style="margin:4px 0 0"></p>
+  </div>
+
+  <div class="card">
+    <h2>チェック結果</h2>
+    <p class="muted">赤は「直したい所」、黄は「気をつけたい所」、青は「ヒント」です。機械が見つけられるのは、書き方の約束ごとだけです。中身(設問に答えているか、具体的か)は、下の自己採点で自分で確かめます。</p>
+    <div id="finds"></div>
+  </div>
+
+  <div class="card">
+    <h2>文ごとに見る</h2>
+    <p class="muted">文の長さが、棒で見えます。緑は短め、黄は長め、赤はとても長い文です。</p>
+    <div id="sentView"></div>
+  </div>
+
+  <div class="card">
+    <h2>自己採点(目安)</h2>
+    <p class="muted">5つの観点を、4つずつのチェックで確かめます(1つ5点、合計100点)。「表現」は自動で判定します。先生の採点とは別の、自分用の目安です。</p>
+    <div class="score"><b id="total">0</b><span>/ 100点</span><span id="levelTxt" class="muted"></span></div>
+    <div class="crits" id="selfBox"></div>
+    <div class="btns">
+      <button class="btn" id="btnSave">この答案を記録に保存する</button>
+      <button class="btn ghost" id="btnPrint">印刷・PDFにする</button>
+    </div>
+  </div>
+</section>
+
+<!-- ② 型で組み立てる -->
+<section class="panel" id="tab-type">
+  <div class="card">
+    <h2>型に沿って、パーツごとに書く</h2>
+    <p class="muted">いきなり全文を書くのではなく、1つずつ書いてから、つなげます。字数は、制限字数に合わせた目安です。</p>
+    <div class="chips" id="tplChips"></div>
+    <div id="parts"></div>
+    <p class="muted" id="partsTotal"></p>
+    <div class="btns"><button class="btn" id="btnBuild">つなげて、答案欄に入れる</button></div>
+    <p class="muted">つなぎ言葉の例:「そのため」「この経験から」「だからこそ」「以上のことから」</p>
+  </div>
+</section>
+
+<!-- ③ 短文練習 -->
+<section class="panel" id="tab-drill">
+  <div class="card">
+    <h2>短文練習:長い1文を、短い3文に直す</h2>
+    <p class="muted">一文が長いと、言いたいことがぼやけます。「、」や「ので」「て」の所で区切ると、短い文にしやすくなります。</p>
+    <div class="chips" id="drillChips"></div>
+    <div id="drillBody"></div>
+  </div>
+</section>
+
+<!-- ④ 記録 -->
+<section class="panel" id="tab-rec">
+  <div class="card">
+    <h2>記録</h2>
+    <p class="muted">「① 書いてチェック」で保存した答案が並びます。この端末のブラウザの中だけに残ります。</p>
+    <div id="sparkWrap"></div>
+    <div class="scroll"><table class="rec" id="recTable"></table></div>
+    <div class="btns">
+      <button class="btn" id="btnCsv">CSVに書き出す</button>
+      <button class="btn ghost" id="btnJson">バックアップ(JSON)を書き出す</button>
+      <label class="btn ghost" style="display:inline-block">バックアップを読み込む<input id="fileJson" type="file" accept=".json,application/json" hidden></label>
+      <button class="btn ghost" id="btnAllDel">すべて消す</button>
+    </div>
+  </div>
+</section>
+
+<!-- ⑤ 使い方 -->
+<section class="panel" id="tab-help">
+  <div class="card">
+    <h2>使い方</h2>
+    <ol>
+      <li><b>① 書いてチェック</b>:答案を書くと、字数と文の長さ、書き方の約束ごとが自動で出ます。「自動で直せる所を直す」で、「事」→「こと」などをまとめて直せます。</li>
+      <li><b>② 型で組み立てる</b>:設問への答え、経験、学び、職員の仕事とのつながり、まとめ、の順に、パーツごとに書いてからつなぎます。</li>
+      <li><b>③ 短文練習</b>:長い1文を3文に直して、点数の目安を見ます。お手本も見られます。</li>
+      <li><b>④ 記録</b>:保存した答案と点数が並びます。CSVに書き出すと、表計算ソフトで見られます。</li>
+    </ol>
+    <h3>知っておいてほしいこと</h3>
+    <ul>
+      <li>チェックは、過去の添削でよく出た「書き方の直し」をもとにしています。文章の良し悪しを、すべて判定できるわけではありません。</li>
+      <li>自己採点は、自分用の目安です。先生の採点や、試験の合否とは関係がありません。</li>
+      <li>入力した文章は、ネットには送られません。共用のパソコンで使ったあとは、「記録」から消してください。</li>
+      <li>文の長さの目安は、画面の「長い文の目安」で変えられます。</li>
+    </ul>
+    <h3>先生・管理者向け(成績の送信)</h3>
+    <p class="muted">このファイルの先頭にある <code>RECORD_URL</code> に、Google Apps Script のウェブアプリのURLを入れると、記録の表に「先生に送る」ボタンが出ます。空のままなら、ボタンは出ず、何も送られません。送る前に、本人へ確認の画面が出ます。</p>
+  </div>
+</section>
+<footer>江原予備校 / 公務員 作文・小論文トレーナー</footer>
+</div>
+<div id="toast" role="status" aria-live="polite"></div>
+<div id="printArea" class="print-only"></div>
+
+<script>
+(function(){
+'use strict';
+
+/* 先生向け設定:Apps ScriptのURLを入れると「先生に送る」ボタンが出ます。空なら何も送りません。 */
+var RECORD_URL = "";
+
+var KEY = "kogen_sakubun_trainer_v1";
+var memStore = null;
+function loadS(){ try{ var s = localStorage.getItem(KEY); if(s) return JSON.parse(s); }catch(e){} return memStore || {}; }
+var S = loadS();
+S.records = S.records || []; S.draft = S.draft || {}; S.drills = S.drills || {}; S.checks = S.checks || {};
+function saveS(){ memStore = S; try{ localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+
+function $(id){ return document.getElementById(id); }
+function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function cnt(s){ return Array.from(String(s).replace(/\s/g,'')).length; }
+var tt;
+function toast(msg){ var t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(tt); tt = setTimeout(function(){ t.classList.remove('show'); }, 2800); }
+
+/* ---------- 文に分ける ---------- */
+function splitSentences(text){
+  var out = [], start = 0, i = 0, n = text.length;
+  function push(s, e){
+    var ss = s; while(ss < e && /\s/.test(text[ss])) ss++;
+    var ee = e; while(ee > ss && /\s/.test(text[ee-1])) ee--;
+    if(ee <= ss) return;
+    var seg = text.slice(ss, ee);
+    out.push({start: ss, end: ee, text: seg, len: cnt(seg)});
+  }
+  while(i < n){
+    var c = text[i];
+    if(c === '\n'){ push(start, i); i++; start = i; continue; }
+    if('。！？!?'.indexOf(c) >= 0){
+      var j = i + 1;
+      while(j < n && ('。！？!?」』）)】'.indexOf(text[j]) >= 0)) j++;
+      push(start, j); i = j; start = j; continue;
+    }
+    i++;
+  }
+  push(start, n);
+  return out;
+}
+
+/* ---------- チェックのきまり ---------- */
+var EXC = '育立建当捨慌果隔企断あたそだ';
+var KANA_MAP = {'沢山':'たくさん','下さい':'ください','有難う':'ありがとう','宜しく':'よろしく'};
+var TYPO_MAP = {'てています':'ています','利用様':'利用者様'};
+
+var RX = [
+ {id:'koto', group:'hyouki', level:'warn', re:/([るたいうくすつぬむぶぐなの])事(?=[がをはもにでとのへや、。])/g,
+  title:'「事」は、平仮名の「こと」で書きましょう',
+  desc:'「〜すること」「〜したこと」のように、内容を表す「こと」は、平仮名で書くのがふつうです。',
+  fix:function(t,c){ return t.replace(/([るたいうくすつぬむぶぐなの])事(?=[がをはもにでとのへや、。])/g, function(m,a){ c.n++; return a+'こと'; }); }},
+ {id:'deki', group:'hyouki', level:'warn', re:/出来(?=[るたなまてず])/g,
+  title:'「出来る」は、平仮名の「できる」で書きましょう',
+  desc:'「できる」「できた」「できない」は、平仮名で書くのが一般的です。',
+  fix:function(t,c){ return t.replace(/出来(?=[るたなまてず])/g, function(){ c.n++; return 'でき'; }); }},
+ {id:'itadaku', group:'hyouki', level:'warn', re:/頂(?=[きくけい])/g,
+  title:'「頂く」は、平仮名の「いただく」で書きましょう',
+  desc:'「〜していただく」のように、人から何かをしてもらうときの「いただく」は、平仮名にします。',
+  fix:function(t,c){ return t.replace(/頂(?=[きくけい])/g, function(){ c.n++; return 'いただ'; }); }},
+ {id:'kana', group:'hyouki', level:'warn', re:/沢山|下さい|有難う|宜しく/g,
+  title:'平仮名で書く言葉です(例:たくさん、ください)',
+  desc:'「沢山」「下さい」「有難う」「宜しく」は、平仮名にします。',
+  fix:function(t,c){ return t.replace(/沢山|下さい|有難う|宜しく/g, function(m){ c.n++; return KANA_MAP[m]; }); }},
+ {id:'inuki', group:'hyouki', level:'error', re:/(.)て(ます|ました|ません)/g, skip:function(m){ return EXC.indexOf(m[1]) >= 0; },
+  title:'「い」が抜けています(例:思ってます→思っています)',
+  desc:'話し言葉では「い」を抜きますが、文章では「〜ています」と書きます。',
+  fix:function(t,c){ return t.replace(/(.)て(ます|ました|ません)/g, function(m,a,b){ if(EXC.indexOf(a) >= 0) return m; c.n++; return a+'てい'+b; }); }},
+ {id:'ranuki', group:'hyouki', level:'warn', re:/(見|食べ|出|来|考え|着|寝|感じ|信じ|受け|答え|覚え|越え|伝え|調べ)れ(る|た|ない|ます|ません)/g,
+  title:'「ら」が抜けているかもしれません(例:見れる→見られる)',
+  desc:'「見られる」「出られる」のように、「ら」を入れて書きます。',
+  fix:function(t,c){ return t.replace(/(見|食べ|出|来|考え|着|寝|感じ|信じ|受け|答え|覚え|越え|伝え|調べ)れ(る|た|ない|ます|ません)/g, function(m,a,b){ c.n++; return a+'られ'+b; }); }},
+ {id:'typo', group:'hyouki', level:'error', re:/てています|利用様/g,
+  title:'誤字・脱字かもしれません',
+  desc:'例:「覚えてています」→「覚えています」、「利用様」→「利用者様」。声に出して読み直すと、気づけます。',
+  fix:function(t,c){ return t.replace(/てています|利用様/g, function(m){ c.n++; return TYPO_MAP[m]; }); }},
+ {id:'dbl', group:'hyouki', level:'error', re:/(に|を|が|で)\1|とと(?!の)/g,
+  title:'同じ助詞が重なっています(例:「にに」)',
+  desc:'打ち間違いの可能性があります。',
+  fix:function(t,c){ return t.replace(/(に|を|が|で)\1/g, function(m,a){ c.n++; return a; }); }},
+ {id:'punct', group:'hyouki', level:'error', re:/([。、])\1|、。|。、/g,
+  title:'句読点が重なっています', desc:'「。。」「、、」「、。」などは、打ち間違いの可能性があります。'},
+ {id:'kuten', group:'hyouki', level:'error', re:/。(?:という|といった|ので|のに|けれど|ですが)/g,
+  title:'「。」の直後に「という」などが続いています',
+  desc:'句点の位置が違うかもしれません。例:「目指す。という話」→「目指している、という話」。'},
+ {id:'ori', group:'hyouki', level:'info', re:/(?:て)?おり(?:ます|ました|ません)/g,
+  title:'「おります」は、作文では「います」で十分です',
+  desc:'「おります」は、丁寧すぎて固い印象になります。「〜しています」「〜していました」で大丈夫です。',
+  fix:function(t,c){ t = t.replace(/ており(ます|ました|ません)/g, function(m,b){ c.n++; return 'てい'+b; }); return t.replace(/おり(ます|ました|ません)/g, function(m,b){ c.n++; return 'い'+b; }); }},
+ {id:'jyuu', group:'repeat', level:'warn', re:/一生懸命頑張|まず最初|一番最初|違和感を感じ|今現在|被害を被|後で後悔|各々それぞれ/g,
+  title:'同じ意味の言葉が重なっています(重言)',
+  desc:'例:「一生懸命頑張る」→「精一杯努力する」「一生懸命取り組む」、「まず最初に」→「まず」。'}
+];
+
+var REP = [['ことができ',3,'warn'],['と思い',3,'warn'],['と考え',4,'info'],['しっかり',2,'info'],['一生懸命',2,'info'],['とても',3,'info'],['大切',4,'info'],['という',5,'info']];
+var PAIRS = [['子供','子ども'],['私達','私たち'],['方達','方たち'],['一人一人','一人ひとり'],['一つ一つ','一つひとつ'],['お客様','お客さま'],['利用者様','利用者さん']];
+var POLITE = /(です|ます|ました|でした|ません|ましょう|ください|でしょう)$/;
+
+function analyze(text, longLimit){
+  var sents = splitSentences(text), F = [];
+  function idxOf(pos){ for(var i = 0; i < sents.length; i++){ if(pos >= sents[i].start && pos < sents[i].end) return i; } return -1; }
+  function add(f){ if(f.hits.length) F.push(f); }
+
+  RX.forEach(function(d){
+    var re = new RegExp(d.re.source, 'g'), m, hits = [];
+    while((m = re.exec(text)) !== null){
+      if(m[0].length === 0){ re.lastIndex++; continue; }
+      if(d.skip && d.skip(m)) continue;
+      hits.push({start: m.index, end: m.index + m[0].length, sent: idxOf(m.index)});
+    }
+    add({id: d.id, group: d.group, level: d.level, title: d.title, desc: d.desc, hits: hits});
+  });
+
+  /* 話し言葉 */
+  (function(){
+    var hits = [], m, re1 = /正直|やっぱり|やっぱ|すごく|すごい|ちょっと|みたいな|っていう|ていうか/g, re2 = /(^|[。！？\n])(でも|だから|なので|あと|それと)/g;
+    while((m = re1.exec(text)) !== null) hits.push({start: m.index, end: m.index + m[0].length, sent: idxOf(m.index)});
+    while((m = re2.exec(text)) !== null){ var s = m.index + m[1].length; hits.push({start: s, end: s + m[2].length, sent: idxOf(s)}); }
+    add({id:'spoken', group:'repeat', level:'warn', title:'話し言葉になっています',
+      desc:'作文・小論文では、書き言葉に直します。例:「正直」→削る、「すごく」→「とても」、「ちょっと」→「少し」、「でも」→「しかし」、「だから・なので」→「そのため」。', hits: hits});
+  })();
+
+  /* 長い文・読点 */
+  var L = longLimit, hl = [], hw = [], nc = [], mc = [];
+  sents.forEach(function(s, i){
+    var h = {start: s.start, end: s.end, sent: i, whole: true};
+    if(s.len >= L + 20) hl.push(h); else if(s.len >= L) hw.push(h);
+    var commas = (s.text.match(/、/g) || []).length;
+    if(s.len >= 40 && commas === 0) nc.push(h);
+    if(commas >= 5) mc.push(h);
+  });
+  add({id:'longErr', group:'length', level:'error', title:'とても長い文があります(' + (L+20) + '字以上)',
+    desc:'一文が長いと、主語と述語が離れて、読みにくくなります。「〜が、」「〜ので、」「〜て、」の所で、2つの文に分けてみましょう。', hits: hl});
+  add({id:'longWarn', group:'length', level:'warn', title:'長めの文があります(' + L + '字以上)',
+    desc:'声に出して、一息で読めるかを確かめます。言いたいことを、1文に1つにすると読みやすくなります。', hits: hw});
+  add({id:'noComma', group:'length', level:'info', title:'読点(、)のない、長めの文があります',
+    desc:'意味の切れ目に「、」を打つと、読みやすくなります。', hits: nc});
+  add({id:'manyComma', group:'length', level:'info', title:'読点(、)が多い文があります',
+    desc:'「、」が多い文は、長くなっているサインです。文を分けられないか見てみましょう。', hits: mc});
+
+  /* 文体の混在 */
+  (function(){
+    var P = [], Q = [];
+    sents.forEach(function(s, i){
+      if(s.len < 6 || !/。$/.test(s.text.replace(/[」』）)\s]+$/, ''))) return;
+      var t = s.text.replace(/[。！？!?]+[」』）)]*$/, '');
+      (POLITE.test(t) ? P : Q).push({start: s.start, end: s.end, sent: i, whole: true});
+    });
+    if(P.length && Q.length){
+      var minor = P.length < Q.length ? P : Q;
+      add({id:'style', group:'style', level:'error', title:'文体が混ざっています(です・ます と だ・である)',
+        desc:'答案全体を、どちらか一方にそろえます。小論文では「だ・である」、作文や志望の文章では「です・ます」が多いです。数の少ない方を直します。', hits: minor});
+    }
+  })();
+
+  /* くり返し */
+  REP.forEach(function(r){
+    var hits = [], pos = 0, k;
+    while((k = text.indexOf(r[0], pos)) >= 0){ hits.push({start: k, end: k + r[0].length, sent: idxOf(k)}); pos = k + r[0].length; }
+    if(hits.length >= r[1]){
+      add({id:'rep_' + r[0], group:'repeat', level: r[2], title:'「' + r[0] + '」が' + hits.length + '回出ています',
+        desc:'同じ言い回しが続くと、単調になります。言い換えたり、言い切りにしたりできないか見てみましょう。「と思います」は、「〜したいです」「〜します」と言い切ると、はっきり伝わります。', hits: hits});
+    }
+  });
+  (function(){
+    var ends = sents.map(function(s){ return s.text.replace(/[。！？!?」』）)\s]+$/, '').slice(-3); });
+    var hits = [], i = 0;
+    while(i < ends.length){
+      var j = i; while(j + 1 < ends.length && ends[j+1] === ends[i] && ends[i].length === 3) j++;
+      if(j - i + 1 >= 3){ for(var q = i; q <= j; q++) hits.push({start: sents[q].start, end: sents[q].end, sent: q, whole: true}); }
+      i = j + 1;
+    }
+    add({id:'endrep', group:'repeat', level:'info', title:'文の終わりが、同じ形で3つ以上続いています',
+      desc:'「〜ました。〜ました。〜ました。」のように続くと、単調です。1つを、別の終わり方にしてみましょう。', hits: hits});
+  })();
+  (function(){
+    var hits = [];
+    sents.forEach(function(s, i){ var m = /^(私は|私が|私も)/.exec(s.text); if(m) hits.push({start: s.start, end: s.start + m[0].length, sent: i}); });
+    if(hits.length >= 3) add({id:'watashi', group:'repeat', level:'info', title:'文の始まりが「私は」ばかりです(' + hits.length + '回)',
+      desc:'主語を省いたり、「この経験から」「その結果」などで始めたりすると、読みやすくなります。', hits: hits});
+  })();
+
+  /* 表記ゆれ・数字 */
+  PAIRS.forEach(function(p){
+    var a = text.indexOf(p[0]), b = text.indexOf(p[1]);
+    if(a >= 0 && b >= 0){
+      add({id:'yure_' + p[0], group:'hyouki', level:'info', title:'「' + p[0] + '」と「' + p[1] + '」が混ざっています',
+        desc:'同じ言葉は、答案の中で書き方をそろえます。', hits: [{start: a, end: a + p[0].length, sent: idxOf(a)}, {start: b, end: b + p[1].length, sent: idxOf(b)}]});
+    }
+  });
+  (function(){
+    var re1 = /[0-9０-９]+(?:年|月|日|歳|代|人|回|時間|%|％|割)/g, re2 = /[二三四五六七八九十〇]+(?:年|月|日|歳|代|人|回|時間|割)|一(?:年|月|日|歳|代|回|時間|割)/g, m, a = [], b = [];
+    while((m = re1.exec(text)) !== null) a.push({start: m.index, end: m.index + m[0].length, sent: idxOf(m.index)});
+    while((m = re2.exec(text)) !== null) b.push({start: m.index, end: m.index + m[0].length, sent: idxOf(m.index)});
+    if(a.length && b.length) add({id:'num', group:'hyouki', level:'info', title:'数字の書き方がそろっていません',
+      desc:'算用数字(40代、2人)と漢数字(四月、二人)が混ざっています。横書きなら算用数字、縦書きなら漢数字にそろえます。', hits: a.concat(b)});
+  })();
+
+  /* 段落・最後の句点 */
+  (function(){
+    var lines = text.split('\n').filter(function(l){ return l.trim() !== ''; });
+    var total = cnt(text);
+    if(lines.length === 1 && total >= 200){
+      add({id:'para1', group:'structure', level:'warn', title:'段落が分かれていません(1つだけ)',
+        desc:'「きっかけ」「経験」「学び」「職員の仕事とのつながり」「まとめ」のように、話の区切りで、改行して段落を分けます。', hits: [{start: 0, end: Math.min(text.length, 1), sent: 0, whole: true}]});
+    }
+    if(lines.length >= 2){
+      var ind = lines.filter(function(l){ return /^　/.test(l); }).length;
+      if(ind > 0 && ind < lines.length) add({id:'indent', group:'structure', level:'warn', title:'段落の字下げがそろっていません',
+        desc:'原稿用紙では、段落の最初を1マス空けます。「段落の字下げをそろえる」ボタンで直せます。', hits: [{start: 0, end: 1, sent: 0, whole: true}]});
+    }
+    var last = text.replace(/\s+$/, '').slice(-1);
+    if(total > 0 && '。！？」』）)'.indexOf(last) < 0) add({id:'lastdot', group:'structure', level:'info', title:'最後に「。」がありません',
+      desc:'最後の文の終わりに、「。」を打ちます。', hits: [{start: Math.max(0, text.replace(/\s+$/, '').length - 1), end: text.replace(/\s+$/, '').length, sent: sents.length - 1}]});
+  })();
+
+  var order = {error: 0, warn: 1, info: 2};
+  F.sort(function(x, y){ return order[x.level] - order[y.level]; });
+
+  /* 表現の自動判定 */
+  var has = function(id){ return F.filter(function(f){ return f.id === id; })[0]; };
+  var hy = F.filter(function(f){ return f.group === 'hyouki'; });
+  var hyWarnHits = 0; hy.forEach(function(f){ if(f.level === 'warn') hyWarnHits += f.hits.length; });
+  var chars = cnt(text), ok = chars > 0;
+  var expr = [
+    ok && !has('longErr') && ((has('longWarn') ? has('longWarn').hits.length : 0) <= 2),
+    ok && !has('style'),
+    ok && hy.filter(function(f){ return f.level === 'error'; }).length === 0 && hyWarnHits <= 2,
+    ok && F.filter(function(f){ return f.group === 'repeat' && f.level !== 'info'; }).length === 0
+  ];
+  var paras = text.split('\n').filter(function(l){ return l.trim() !== ''; }).length;
+  var maxLen = 0, sum = 0; sents.forEach(function(s){ sum += s.len; if(s.len > maxLen) maxLen = s.len; });
+  return {sents: sents, findings: F, expr: expr,
+    stats: {chars: chars, sentCount: sents.length, paras: paras, avg: sents.length ? Math.round(sum / sents.length) : 0, max: maxLen}};
+}
+
+function applyFixes(text){
+  var c = {n: 0}, t = text;
+  RX.forEach(function(d){ if(d.fix) t = d.fix(t, c); });
+  return {text: t, n: c.n};
+}
+
+/* ---------- 自己採点 ---------- */
+var CRIT = [
+ {k:'theme', name:'テーマ理解', items:['設問に、書き出しの部分で直接答えている','設問が求めていること(課題・役割・自分の貢献など)を、すべて書いた','結論でも、もう一度、設問に答えている','話がテーマからそれていない']},
+ {k:'struct', name:'構成', items:['序論・本論・結論の流れがあり、段落が分かれている','各段落で、言いたいことが1つにまとまっている','結論に、全体をまとめる一文がある','同じ内容をくり返していない']},
+ {k:'concrete', name:'具体性', items:['実際の場面(いつ・どこで・何をしたか)が書いてある','自分の行動と、その結果が書いてある','その経験から学んだことが、言葉になっている','なぜそう判断・行動したのか、理由が書いてある']},
+ {k:'fit', name:'公務員適性', items:['住民や全体のために働く、という視点がある','志望先の地域や行政について、具体的に触れている','自分の経験や力を、職員の仕事とつなげている','「なぜこの自治体か」が読み取れる']},
+ {k:'expr', name:'表現(自動で判定)', auto:true, items:['一文が長すぎない(とても長い文がなく、長めの文が2つ以下)','文体(です・ます/だ・である)がそろっている','表記の直しが必要な所が少ない','同じ言い回しのくり返しや、話し言葉が少ない']}
+];
+var LEVELS = [[0,'まだ伸びしろがあります'],[70,'もう一歩です'],[80,'かなりよく書けています'],[85,'とてもよく書けています']];
+function levelOf(p){ var g = LEVELS[0][1]; LEVELS.forEach(function(l){ if(p >= l[0]) g = l[1]; }); return g; }
+
+var lastA = null;
+function scores(){
+  return CRIT.map(function(c){
+    var n = 0;
+    c.items.forEach(function(t, i){ if(c.auto){ if(lastA && lastA.expr[i]) n++; } else if(S.checks[c.k + i]) n++; });
+    return n * 5;
+  });
+}
+function buildSelf(){
+  var box = $('selfBox'); box.innerHTML = '';
+  CRIT.forEach(function(c){
+    var d = document.createElement('div'); d.className = 'crit';
+    var h = '<h4><span>' + esc(c.name) + '</span><span id="pts_' + c.k + '">0/20</span></h4>';
+    c.items.forEach(function(t, i){
+      if(c.auto) h += '<div class="chk auto"><span class="mk" id="auto_' + i + '">－</span><span>' + esc(t) + '</span></div>';
+      else h += '<label class="chk"><input type="checkbox" data-c="' + c.k + '" data-i="' + i + '"' + (S.checks[c.k + i] ? ' checked' : '') + '><span>' + esc(t) + '</span></label>';
+    });
+    d.innerHTML = h; box.appendChild(d);
+  });
+  box.addEventListener('change', function(e){
+    var t = e.target; if(t.dataset && t.dataset.c){ S.checks[t.dataset.c + t.dataset.i] = t.checked; saveS(); updateSelf(); }
+  });
+}
+function updateSelf(){
+  var sc = scores(), total = 0;
+  CRIT.forEach(function(c, i){ total += sc[i]; $('pts_' + c.k).textContent = sc[i] + '/20'; });
+  for(var i = 0; i < 4; i++){
+    var m = $('auto_' + i), ok = lastA && lastA.expr[i];
+    m.textContent = !lastA || !lastA.stats.chars ? '－' : (ok ? '✓' : '×');
+    m.className = 'mk ' + (!lastA || !lastA.stats.chars ? '' : (ok ? 'y' : 'n'));
+  }
+  $('total').textContent = total;
+  $('levelTxt').textContent = levelOf(total);
+}
+
+/* ---------- 画面の更新 ---------- */
+var LABEL = {error:'直しましょう', warn:'気をつけましょう', info:'ヒント'};
+var MK = {error:'e', warn:'w', info:'i'};
+function limitVal(){ return Math.max(100, parseInt($('f_limit').value, 10) || 800); }
+function longVal(){ return Math.max(30, parseInt($('f_long').value, 10) || 60); }
+
+function snippet(text, h, lvl){
+  var a = Math.max(0, h.start - 10), b = Math.min(text.length, h.end + 10);
+  return (a > 0 ? '…' : '') + esc(text.slice(a, h.start)) + '<mark class="' + MK[lvl] + '">' + esc(text.slice(h.start, h.end)) + '</mark>' + esc(text.slice(h.end, b)) + (b < text.length ? '…' : '');
+}
+function renderFinds(a, text){
+  var box = $('finds');
+  if(!a.stats.chars){ box.innerHTML = '<p class="muted">ここに答案を書くと、チェック結果が出ます。</p>'; return; }
+  if(!a.findings.length){ box.innerHTML = '<div class="good">書き方の約束ごとで、気になる所は見つかりませんでした。あとは、下の自己採点で、中身を確かめましょう。</div>'; return; }
+  box.innerHTML = a.findings.map(function(f){
+    var shown = f.hits.slice(0, 5), more = f.hits.length - shown.length;
+    var li = shown.map(function(h){
+      if(h.whole){ var s = a.sents[h.sent]; return '<li>第' + (h.sent + 1) + '文(' + (s ? s.len : 0) + '字):' + esc(s ? s.text.slice(0, 40) + (s.text.length > 40 ? '…' : '') : '') + '</li>'; }
+      return '<li>' + snippet(text, h, f.level).replace(/\n/g, ' ') + '</li>';
+    }).join('');
+    return '<div class="find ' + f.level + '"><div><span class="badge ' + f.level + '">' + LABEL[f.level] + '</span><span class="t">' + esc(f.title) + '</span> <span class="muted">(' + f.hits.length + 'か所)</span></div><div class="d">' + esc(f.desc) + '</div><ul class="h">' + li + (more > 0 ? '<li class="muted">ほか' + more + 'か所</li>' : '') + '</ul></div>';
+  }).join('');
+}
+function renderSentences(a, text, L){
+  var box = $('sentView');
+  if(!a.sents.length){ box.innerHTML = '<p class="muted">答案を書くと、ここに文が並びます。</p>'; return; }
+  var marks = [];
+  a.findings.forEach(function(f){ f.hits.forEach(function(h){ if(!h.whole) marks.push({s: h.start, e: h.end, l: MK[f.level]}); }); });
+  box.innerHTML = a.sents.map(function(s, i){
+    var ms = marks.filter(function(m){ return m.s >= s.start && m.s < s.end; }).sort(function(x, y){ return x.s - y.s; });
+    var html = '', pos = s.start;
+    ms.forEach(function(m){ if(m.s < pos) return; var e = Math.min(m.e, s.end); html += esc(text.slice(pos, m.s)) + '<mark class="' + m.l + '">' + esc(text.slice(m.s, e)) + '</mark>'; pos = e; });
+    html += esc(text.slice(pos, s.end));
+    var cls = s.len >= L + 20 ? 'e' : (s.len >= L ? 'w' : 'o'), w = Math.min(100, Math.round(s.len / (L + 20) * 100));
+    return '<div class="sent"><div class="n">' + (i + 1) + '</div><div><div>' + html + '</div><div class="lenrow"><span class="lenbar ' + cls + '"><i style="width:' + w + '%"></i></span><span class="lennum">' + s.len + '字</span></div></div></div>';
+  }).join('');
+}
+function run(){
+  var text = $('text').value, L = longVal(), lim = limitVal();
+  var a = analyze(text, L); lastA = a;
+  var st = a.stats;
+  $('stats').innerHTML =
+    '<div class="stat"><span>字数</span><b>' + st.chars + '</b> / ' + lim + '</div>' +
+    '<div class="stat"><span>原稿用紙(20字×10行)</span><b>約' + (st.chars / 200).toFixed(1) + '</b>枚</div>' +
+    '<div class="stat"><span>文の数</span><b>' + st.sentCount + '</b></div>' +
+    '<div class="stat"><span>段落の数</span><b>' + st.paras + '</b></div>' +
+    '<div class="stat"><span>1文の平均 / いちばん長い文</span><b>' + st.avg + '</b>字 / <b>' + st.max + '</b>字</div>';
+  var ratio = st.chars / lim, bar = $('bar'); bar.className = 'bar' + (st.chars > lim ? ' over' : (ratio >= 0.8 ? ' ok' : ''));
+  bar.firstElementChild.style.width = Math.min(100, Math.round(ratio * 100)) + '%';
+  $('barMsg').textContent = !st.chars ? 'まだ書いていません。' : (st.chars > lim ? '制限字数を' + (st.chars - lim) + '字超えています。' : (ratio < 0.8 ? 'あと' + (lim - st.chars) + '字で制限字数です。一般に、制限字数の8割(' + Math.ceil(lim * 0.8) + '字)以上は書くようにすすめられます。受験先の指示を優先してください。' : 'あと' + (lim - st.chars) + '字で制限字数です。'));
+  renderFinds(a, text); renderSentences(a, text, L); updateSelf();
+  var fx = applyFixes(text); $('btnFix').textContent = '自動で直せる所を直す(' + fx.n + 'か所)'; $('btnFix').disabled = fx.n === 0;
+}
+var runT;
+function onTextChange(){ clearTimeout(runT); runT = setTimeout(function(){ run(); saveDraft(); }, 250); }
+function saveDraft(){
+  S.draft.name = $('f_name').value; S.draft.target = $('f_target').value; S.draft.kubun = $('f_kubun').value;
+  S.draft.theme = $('f_theme').value; S.draft.limit = $('f_limit').value; S.draft.long = $('f_long').value; S.draft.text = $('text').value;
+  saveS();
+}
+
+/* ---------- 型で組み立てる ---------- */
+var TEMPLATES = {
+ exp:{name:'経験型(「困難な状況で取った行動」「役割を全うできるか」など)', parts:[
+  {k:'ans', label:'① 設問への答え(いちばん最初に)', hint:'問いに、まず一言で答えます。「はい、できます」「大切なのは〇〇です」のように言い切ります。', ratio:.10},
+  {k:'scene', label:'② 経験の場面', hint:'いつ、どこで、何があったか。事実を、短く書きます。', ratio:.20},
+  {k:'act', label:'③ 自分の行動と結果', hint:'あなたが何をして、どうなったか。「なぜそうしたか」も一言入れます。', ratio:.20},
+  {k:'learn', label:'④ 学んだこと', hint:'その経験から、何が身についたか。自分の言葉で書きます。', ratio:.15},
+  {k:'link', label:'⑤ 職員の仕事とのつながり', hint:'身についた力を、志望先の仕事や、地域の課題(人口減少・高齢化など)に、どう生かすか。', ratio:.20},
+  {k:'sum', label:'⑥ まとめの一文', hint:'最初の答えを、もう一度、言い切ります。', ratio:.15}]},
+ shokuin:{name:'職員像型(「職員として大切なこと」など)', parts:[
+  {k:'ans', label:'① 大切だと考えること(結論)', hint:'「私が大切だと考えるのは〇〇です」と、先に答えます。', ratio:.15},
+  {k:'why', label:'② そう考える理由', hint:'なぜ、それが大切なのか。住民や地域の立場から書きます。', ratio:.20},
+  {k:'ex', label:'③ 自分の経験(具体例)', hint:'その大切さを感じた場面。いつ、何があり、自分がどうしたか。', ratio:.30},
+  {k:'link', label:'④ 志望先とのつながり', hint:'志望先の地域や課題に触れ、自分がどう生かすかを書きます。', ratio:.20},
+  {k:'sum', label:'⑤ まとめの一文', hint:'全体を、一文でまとめます。', ratio:.15}]},
+ kadai:{name:'課題→行政→貢献型(「地域や社会の課題と、行政の役割、自分の貢献」)', parts:[
+  {k:'issue', label:'① 課題', hint:'地域や社会の課題を、1つ選んで書きます。', ratio:.20},
+  {k:'bg', label:'② なぜその課題か(自分の背景)', hint:'その課題を、なぜ大切だと思うのか。自分の経験や気持ちを書きます。', ratio:.15},
+  {k:'role', label:'③ 行政の役割', hint:'その課題に、行政(志望先)が果たすべき役割を書きます。', ratio:.25},
+  {k:'contrib', label:'④ 自分の貢献', hint:'職員として、自分に何ができるか。具体的に書きます。', ratio:.25},
+  {k:'sum', label:'⑤ まとめの一文', hint:'課題・役割・自分の貢献を、一文でつなぎます。', ratio:.15}]}
+};
+var tpl = S.draft.tpl && TEMPLATES[S.draft.tpl] ? S.draft.tpl : 'exp';
+function renderTpl(){
+  $('tplChips').innerHTML = Object.keys(TEMPLATES).map(function(k){ return '<button class="chip" data-k="' + k + '" aria-pressed="' + (k === tpl) + '">' + esc(TEMPLATES[k].name) + '</button>'; }).join('');
+  var lim = limitVal(); S.draft.parts = S.draft.parts || {}; S.draft.parts[tpl] = S.draft.parts[tpl] || {};
+  $('parts').innerHTML = TEMPLATES[tpl].parts.map(function(p){
+    return '<div class="part"><label for="p_' + p.k + '">' + esc(p.label) + ' <span class="muted">(目安 約' + Math.round(lim * p.ratio / 10) * 10 + '字)</span></label><p class="hint">' + esc(p.hint) + '</p><textarea id="p_' + p.k + '" data-k="' + p.k + '">' + esc(S.draft.parts[tpl][p.k] || '') + '</textarea><div class="cc" id="cc_' + p.k + '">0字</div></div>';
+  }).join('');
+  updateParts();
+}
+function updateParts(){
+  var total = 0;
+  TEMPLATES[tpl].parts.forEach(function(p){ var v = $('p_' + p.k).value, n = cnt(v); total += n; $('cc_' + p.k).textContent = n + '字'; });
+  $('partsTotal').textContent = '合計 ' + total + '字 / 制限字数 ' + limitVal() + '字';
+}
+
+/* ---------- 短文練習 ---------- */
+var DRILLS = [
+ {id:'d0', title:'基礎(元の問題)', q:'私は以前、介護の仕事をしていて、利用者さんとの会話を大切にしていたので、看護師になっても話を聞く姿勢を大切にしたいと思い、志望しました。',
+  must:[['介護の仕事', /介護/], ['会話を大切に', /会話[^。]*大切|大切[^。]*会話/], ['看護師になっても話を聞く姿勢', /看護師[^。]*(聞|話)/]],
+  model:'私は以前、介護の仕事をしていました。\n利用者さんとの会話を大切にしてきました。\n看護師になっても、患者さんの話を聞く姿勢を大切にしたいです。'},
+ {id:'d1', title:'公務員版1(接客→町職員)', q:'私は以前、接客のアルバイトをしていて、お客様との会話を大切にしていたので、町職員になっても住民の話を聞く姿勢を大切にしたいと思い、志望しました。',
+  must:[['接客のアルバイト', /接客|アルバイト/], ['会話を大切に', /会話[^。]*大切|大切[^。]*会話/], ['町職員になっても住民の話を聞く姿勢', /職員[^。]*(聞|話)/]],
+  model:'私は以前、接客のアルバイトをしていました。\nお客様との会話を大切にしてきました。\n町職員になっても、住民の方の話を丁寧に聞く姿勢を大切にしたいです。'},
+ {id:'d2', title:'公務員版2(地域活動→志望)', q:'私は大学で地域活動に参加していて、高齢の方と話す機会が多く、その経験から人の役に立つ仕事がしたいと考え、公務員を志望しました。',
+  must:[['大学の地域活動', /地域活動/], ['高齢の方と話す機会', /高齢/], ['人の役に立つ仕事→公務員を志望', /役に立[^。]*|公務員/]],
+  model:'私は大学で、地域活動に参加していました。\n高齢の方と話す機会が多くありました。\nその経験から、人の役に立つ仕事がしたいと考え、公務員を志望しました。'},
+ {id:'d3', title:'公務員版3(生徒会→住民の立場)', q:'私は高校の生徒会で活動していて、意見が分かれたときに全員の話を聞くことを心がけていたので、公務員になっても住民の立場に立って考えたいと思い、志望しました。',
+  must:[['高校の生徒会', /生徒会/], ['全員の話を聞く', /全員[^。]*(聞|話)|(聞|話)[^。]*全員/], ['住民の立場に立って', /住民[^。]*立場/]],
+  model:'私は高校の生徒会で活動していました。\n意見が分かれたときは、全員の話を聞くことを心がけてきました。\n公務員になっても、住民の立場に立って考えたいです。'}
+];
+var drillCur = 0, SHORT = 35;
+function renderDrillChips(){
+  $('drillChips').innerHTML = DRILLS.map(function(d, i){ var best = S.drills[d.id]; return '<button class="chip" data-i="' + i + '" aria-pressed="' + (i === drillCur) + '">' + esc(d.title) + (best != null ? '(最高 ' + best + '点)' : '') + '</button>'; }).join('');
+}
+function renderDrill(){
+  var d = DRILLS[drillCur]; renderDrillChips();
+  $('drillBody').innerHTML =
+    '<h3>問題</h3><p>次の文を、短い3文に直しましょう。</p><div class="model" style="background:var(--bg)">「' + esc(d.q) + '」</div>' +
+    '<h3>あなたの答え</h3><textarea id="dAns" style="min-height:130px" placeholder="3つの文に分けて書きます。"></textarea>' +
+    '<div class="btns"><button class="btn" id="dCheck">チェックする</button><button class="btn ghost" id="dModel" disabled>お手本を見る</button></div>' +
+    '<div id="dResult"></div><div id="dModelBox"></div>';
+  $('dCheck').onclick = checkDrill;
+  $('dModel').onclick = function(){ $('dModelBox').innerHTML = '<h3>お手本</h3><div class="model">' + esc(d.model) + '</div><p class="muted">お手本と同じでなくても、3つの条件を満たしていれば大丈夫です。</p>'; };
+}
+function checkDrill(){
+  var d = DRILLS[drillCur], ans = $('dAns').value, sents = splitSentences(ans), n = sents.length;
+  if(!ans.trim()){ toast('答えを書いてください'); return; }
+  var short = sents.filter(function(s){ return s.len <= SHORT; }).length, shortRatio = n ? short / n : 0;
+  var tails = sents.map(function(s){ return s.text.replace(/[。！？!?」』）)]+$/, ''); });
+  var polite = tails.filter(function(t){ return POLITE.test(t); }).length;
+  var uniform = n > 0 && (polite === n || polite === 0);
+  var noOmou = !/と思(い|う)/.test(ans);
+  var hit = d.must.map(function(m){ return {label: m[0], ok: m[1].test(ans)}; });
+  var hitN = hit.filter(function(h){ return h.ok; }).length;
+  var sc = Math.round((n === 3 ? 25 : 0) + 25 * shortRatio + (uniform ? 15 : 0) + (noOmou ? 10 : 0) + 25 * hitN / d.must.length);
+  var lens = sents.map(function(s){ return s.len + '字'; }).join('、');
+  function row(ok, t){ return '<div class="chk auto"><span class="mk ' + (ok ? 'y' : 'n') + '">' + (ok ? '✓' : '×') + '</span><span>' + t + '</span></div>'; }
+  var h = '<h3>できたかな?</h3>' +
+    row(n === 3, '3つの文になっている(いま ' + n + '文)') +
+    row(shortRatio === 1, '1文が長すぎない(' + SHORT + '字以内が目安。いま ' + esc(lens) + ')') +
+    row(uniform, '文末の形がそろっている(です・ます か だ・である)') +
+    row(noOmou, '「と思います」を使わず、言い切っている') +
+    hit.map(function(x){ return row(x.ok, '元の文の意味が入っている:' + esc(x.label)); }).join('');
+  var a = analyze(ans, 60), hints = a.findings.filter(function(f){ return f.group === 'hyouki' || f.group === 'repeat'; });
+  if(hints.length) h += '<h3>表記のヒント</h3>' + hints.map(function(f){ return '<div class="find ' + f.level + '"><span class="badge ' + f.level + '">' + LABEL[f.level] + '</span><span class="t">' + esc(f.title) + '</span><div class="d">' + esc(f.desc) + '</div></div>'; }).join('');
+  var msg = sc >= 90 ? 'とてもよくできました。' : (sc >= 75 ? 'よくできました。あと少しです。' : 'もう一度、直してみましょう。ヒントを見ながら、書き直せます。');
+  $('dResult').innerHTML = '<div class="score"><b>' + sc + '</b><span>/ 100点(目安)</span><span class="muted">' + msg + '</span></div>' + h;
+  $('dModel').disabled = false;
+  if(S.drills[d.id] == null || sc > S.drills[d.id]){ S.drills[d.id] = sc; saveS(); renderDrillChips(); }
+}
+
+/* ---------- 記録 ---------- */
+function currentRecord(){
+  var a = lastA || analyze($('text').value, longVal()), sc = scores(), total = sc.reduce(function(x, y){ return x + y; }, 0);
+  var err = a.findings.filter(function(f){ return f.level === 'error'; }).length, warn = a.findings.filter(function(f){ return f.level === 'warn'; }).length;
+  return {id: Date.now(), date: new Date().toISOString().slice(0, 10), name: $('f_name').value.trim(), target: $('f_target').value.trim(), kubun: $('f_kubun').value,
+    theme: $('f_theme').value.trim(), limit: limitVal(), chars: a.stats.chars, pts: sc, total: total, level: levelOf(total), err: err, warn: warn, text: $('text').value};
+}
+function renderRec(){
+  var rs = S.records.slice().sort(function(a, b){ return b.id - a.id; });
+  var head = '<tr><th>日付</th><th>氏名</th><th>受験先</th><th>テーマ</th><th>字数</th><th>自己採点</th><th>目安</th><th>直す/気をつける</th><th></th></tr>';
+  $('recTable').innerHTML = head + (rs.length ? rs.map(function(r){
+    return '<tr><td>' + esc(r.date) + '</td><td>' + esc(r.name) + '</td><td>' + esc(r.target) + '</td><td>' + esc(r.theme).slice(0, 40) + '</td><td>' + r.chars + '</td><td><b>' + r.total + '</b></td><td>' + esc(r.level) + '</td><td>' + r.err + ' / ' + r.warn + '</td><td style="white-space:nowrap"><button class="btn small ghost" data-act="load" data-id="' + r.id + '">開く</button> ' + (RECORD_URL ? '<button class="btn small ghost" data-act="send" data-id="' + r.id + '">先生に送る</button> ' : '') + '<button class="btn small ghost" data-act="del" data-id="' + r.id + '">消す</button></td></tr>';
+  }).join('') : '<tr><td colspan="9" class="muted">まだ記録がありません。「① 書いてチェック」の下の「この答案を記録に保存する」で残せます。</td></tr>');
+  var pts = S.records.slice().sort(function(a, b){ return a.id - b.id; }).slice(-30).map(function(r){ return r.total; });
+  if(pts.length >= 2){
+    var W = 320, H = 70, step = W / (pts.length - 1);
+    var path = pts.map(function(v, i){ return (i ? 'L' : 'M') + (i * step).toFixed(1) + ' ' + (H - 6 - (H - 12) * v / 100).toFixed(1); }).join(' ');
+    $('sparkWrap').innerHTML = '<p class="muted" style="margin-bottom:2px">自己採点の変化(古い順・最大30件)</p><svg viewBox="0 0 ' + W + ' ' + H + '" width="100%" style="max-width:420px" role="img" aria-label="自己採点の変化"><path d="' + path + '" fill="none" stroke="var(--info)" stroke-width="2.5"/></svg>';
+  } else $('sparkWrap').innerHTML = '';
+}
+function download(name, mime, content){
+  var b = new Blob([content], {type: mime}), u = URL.createObjectURL(b), a = document.createElement('a');
+  a.href = u; a.download = name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(function(){ URL.revokeObjectURL(u); }, 1500);
+}
+function csvCell(v){ v = String(v == null ? '' : v); return /[",\r\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }
+function sendRecord(r){
+  if(!RECORD_URL){ toast('送り先が設定されていません'); return; }
+  if(!confirm('この答案と点数を、先生に送ります。よいですか?')) return;
+  var body = JSON.stringify({date: r.date, name: r.name, target: r.target, kubun: r.kubun, theme: r.theme, limit: r.limit, chars: r.chars, themeUnderstanding: r.pts[0], structure: r.pts[1], concreteness: r.pts[2], fitness: r.pts[3], expression: r.pts[4], total: r.total, level: r.level, text: r.text});
+  fetch(RECORD_URL, {method: 'POST', mode: 'no-cors', headers: {'Content-Type': 'text/plain'}, body: body}).then(function(){ toast('送りました'); }).catch(function(){ toast('送れませんでした。もう一度ためしてください'); });
+}
+
+/* ---------- 印刷 ---------- */
+function makePrint(){
+  var r = currentRecord(), a = lastA, sc = r.pts;
+  var finds = a.findings.map(function(f){ return '<tr><td>' + LABEL[f.level] + '</td><td>' + esc(f.title) + '</td><td>' + f.hits.length + '</td></tr>'; }).join('');
+  $('printArea').innerHTML =
+    '<h1>作文・小論文 チェックシート</h1>' +
+    '<table><tr><th>日付</th><td>' + esc(r.date) + '</td><th>氏名</th><td>' + esc(r.name) + '</td><th>受験先</th><td>' + esc(r.target) + '(' + esc(r.kubun) + ')</td></tr>' +
+    '<tr><th>テーマ</th><td colspan="3">' + esc(r.theme) + '</td><th>字数</th><td>' + r.chars + ' / ' + r.limit + '</td></tr></table>' +
+    '<h2 style="font-size:14px;margin:12px 0 4px">答案</h2><div class="ans">' + esc(r.text) + '</div>' +
+    '<h2 style="font-size:14px;margin:12px 0 4px">自己採点(目安)</h2><table><tr>' + CRIT.map(function(c){ return '<th>' + esc(c.name.replace('(自動で判定)', '')) + '</th>'; }).join('') + '<th>合計</th></tr><tr>' + sc.map(function(v){ return '<td>' + v + '/20</td>'; }).join('') + '<td><b>' + r.total + '/100</b></td></tr></table>' +
+    '<h2 style="font-size:14px;margin:12px 0 4px">チェック結果</h2>' + (finds ? '<table><tr><th>種類</th><th>内容</th><th>か所</th></tr>' + finds + '</table>' : '<p>気になる所は見つかりませんでした。</p>') +
+    '<h2 style="font-size:14px;margin:12px 0 4px">先生のコメント</h2><div class="cm"></div>';
+  setTimeout(function(){ window.print(); }, 50);
+}
+
+/* ---------- 例文 ---------- */
+var SAMPLE = '私が町職員として大切だと思うのは、住民の話をしっかり聞く事です。私は以前、接客のアルバイトをしていて、お客様との会話を大切にしていたので、相手が何に困っているのかを考えながら話を聞く事ができると思います。\n正直、最初は上手く出来ませんでしたが、先輩に教えてもらってからは、お客様の表情を見て、声のかけ方を変えるようにしてます。その結果、お客様から「ありがとう」と言って頂く事が増えました。\n町役場でも、窓口に来る住民の方は、手続きの事で不安を感じていると思います。だから、一人ひとりの話を丁寧に聞いて、分かりやすく説明したいと思います。窓口は町の顔である。私は一生懸命頑張ります。';
+
+/* ---------- 画面の切り替え・起動 ---------- */
+function showTab(k){
+  Array.prototype.forEach.call(document.querySelectorAll('.tab'), function(b){ b.setAttribute('aria-selected', b.dataset.tab === k ? 'true' : 'false'); });
+  Array.prototype.forEach.call(document.querySelectorAll('.panel'), function(p){ p.classList.toggle('on', p.id === 'tab-' + k); });
+  if(k === 'rec') renderRec();
+  if(k === 'type') renderTpl();
+  window.scrollTo(0, 0);
+}
+
+function init(){
+  var d = S.draft;
+  $('f_name').value = d.name || ''; $('f_target').value = d.target || ''; if(d.kubun) $('f_kubun').value = d.kubun;
+  $('f_theme').value = d.theme || ''; if(d.limit) $('f_limit').value = d.limit; if(d.long) $('f_long').value = d.long; $('text').value = d.text || '';
+  buildSelf(); renderDrill(); renderRec(); run();
+
+  $('tabs').addEventListener('click', function(e){ var b = e.target.closest('.tab'); if(b) showTab(b.dataset.tab); });
+  ['text', 'f_name', 'f_target', 'f_kubun', 'f_theme', 'f_limit', 'f_long'].forEach(function(id){ $(id).addEventListener('input', onTextChange); });
+  var undoText = null;
+  $('btnFix').onclick = function(){ var r = applyFixes($('text').value); if(!r.n) return; undoText = $('text').value; $('text').value = r.text; $('btnUndo').hidden = false; run(); saveDraft(); toast(r.n + 'か所を直しました'); };
+  $('btnUndo').onclick = function(){ if(undoText == null) return; $('text').value = undoText; undoText = null; $('btnUndo').hidden = true; run(); saveDraft(); toast('元に戻しました'); };
+  $('btnIndent').onclick = function(){
+    var t = $('text').value; if(!t.trim()) return; undoText = t;
+    $('text').value = t.split('\n').map(function(l){ return l.trim() === '' ? l : '　' + l.replace(/^[\s　]+/, ''); }).join('\n');
+    $('btnUndo').hidden = false; run(); saveDraft(); toast('字下げをそろえました');
+  };
+  $('btnSample').onclick = function(){ if($('text').value.trim() && !confirm('答案欄の文章を、例文に置き換えます。よいですか?')) return; $('text').value = SAMPLE; run(); saveDraft(); toast('練習用の例文です。いろいろな間違いが入れてあります'); };
+  $('btnClear').onclick = function(){ if($('text').value.trim() && !confirm('答案欄を、空にします。よいですか?')) return; $('text').value = ''; $('btnUndo').hidden = true; run(); saveDraft(); };
+  $('btnSave').onclick = function(){ if(!lastA || !lastA.stats.chars){ toast('答案を書いてから保存します'); return; } S.records.push(currentRecord()); saveS(); renderRec(); toast('記録に保存しました'); };
+  $('btnPrint').onclick = function(){ if(!lastA || !lastA.stats.chars){ toast('答案を書いてから印刷します'); return; } makePrint(); };
+
+  $('tplChips').addEventListener('click', function(e){ var b = e.target.closest('.chip'); if(!b) return; tpl = b.dataset.k; S.draft.tpl = tpl; saveS(); renderTpl(); });
+  $('parts').addEventListener('input', function(e){ var t = e.target; if(!t.dataset.k) return; S.draft.parts[tpl][t.dataset.k] = t.value; saveS(); updateParts(); });
+  $('btnBuild').onclick = function(){
+    var parts = TEMPLATES[tpl].parts.map(function(p){ return ((S.draft.parts[tpl] || {})[p.k] || '').trim(); }).filter(Boolean);
+    if(!parts.length){ toast('どれか1つ、書いてください'); return; }
+    if($('text').value.trim() && !confirm('答案欄の文章を、この内容で置き換えますか?')) return;
+    $('text').value = parts.map(function(x){ return '　' + x; }).join('\n'); run(); saveDraft(); showTab('write'); toast('答案欄に入れました');
+  };
+  $('drillChips').addEventListener('click', function(e){ var b = e.target.closest('.chip'); if(!b) return; drillCur = parseInt(b.dataset.i, 10); renderDrill(); });
+
+  $('recTable').addEventListener('click', function(e){
+    var b = e.target.closest('button'); if(!b) return; var id = parseInt(b.dataset.id, 10);
+    var r = S.records.filter(function(x){ return x.id === id; })[0]; if(!r) return;
+    if(b.dataset.act === 'del'){ if(confirm('この記録を消します。よいですか?')){ S.records = S.records.filter(function(x){ return x.id !== id; }); saveS(); renderRec(); } }
+    else if(b.dataset.act === 'load'){
+      $('f_name').value = r.name; $('f_target').value = r.target; $('f_kubun').value = r.kubun; $('f_theme').value = r.theme; $('f_limit').value = r.limit; $('text').value = r.text;
+      run(); saveDraft(); showTab('write'); toast('答案を開きました');
+    } else if(b.dataset.act === 'send') sendRecord(r);
+  });
+  $('btnCsv').onclick = function(){
+    if(!S.records.length){ toast('記録がありません'); return; }
+    var rows = [['日付','氏名・ペンネーム','受験先','区分','テーマ','制限字数','字数','テーマ理解','構成','具体性','公務員適性','表現','合計','目安']];
+    S.records.slice().sort(function(a, b){ return a.id - b.id; }).forEach(function(r){ rows.push([r.date, r.name, r.target, r.kubun, r.theme, r.limit, r.chars, r.pts[0], r.pts[1], r.pts[2], r.pts[3], r.pts[4], r.total, r.level]); });
+    download('sakubun_kiroku.csv', 'text/csv;charset=utf-8', '﻿' + rows.map(function(r){ return r.map(csvCell).join(','); }).join('\r\n'));
+  };
+  $('btnJson').onclick = function(){ download('sakubun_backup.json', 'application/json', JSON.stringify({version: 1, records: S.records}, null, 1)); };
+  $('fileJson').addEventListener('change', function(e){
+    var f = e.target.files[0]; if(!f) return; var rd = new FileReader();
+    rd.onload = function(){
+      try{
+        var o = JSON.parse(rd.result), have = {}; S.records.forEach(function(r){ have[r.id] = 1; }); var added = 0;
+        (o.records || []).forEach(function(r){ if(r && r.id && !have[r.id] && r.pts && r.pts.length === 5){ S.records.push(r); added++; } });
+        saveS(); renderRec(); toast(added + '件を読み込みました');
+      }catch(err){ toast('読み込めませんでした'); }
+    };
+    rd.readAsText(f); e.target.value = '';
+  });
+  $('btnAllDel').onclick = function(){ if(S.records.length && confirm('すべての記録を消します。よいですか?')){ S.records = []; saveS(); renderRec(); } };
+}
+init();
+})();
+</script>
+</body>
+</html>
